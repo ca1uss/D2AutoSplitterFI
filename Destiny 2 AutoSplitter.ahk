@@ -440,11 +440,12 @@ Return
         if (canPress) {
             canPress := false
             GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Paused
+            WinSetTitle, Destiny 2 AutoSplitter, , Destiny 2 AutoSplitter - Paused
         }
         else {
             canPress := True
             GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Ready
-            
+            WinSetTitle, Destiny 2 AutoSplitter - Paused, , Destiny 2 AutoSplitter
         }
     return
     
@@ -456,6 +457,7 @@ Return
         Send, {%splitButton%}
         canPress := False
         GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Splitter Running
+        WinSetTitle, Destiny 2 AutoSplitter, , Destiny 2 AutoSplitter - Running
     StartAutoSplitter:
         if (currentlyLoadedSplits[1] == "")
         {
@@ -672,6 +674,7 @@ Return
     ResetAutoSplitter:
         Send, {%resetButton%}
         canPress := True
+        WinSetTitle, Destiny 2 AutoSplitter - Running, , Destiny 2 AutoSplitter
         GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Ready
         global breakLoop := 1
         global breakLoopLF := 1
@@ -688,6 +691,7 @@ Return
     StopOnlyAutoSplitter:
         GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Ready
         canPress := True
+        WinSetTitle, Destiny 2 AutoSplitter - Running, , Destiny 2 AutoSplitter
         global breakLoop := 1
         global breakLoopLF := 1
         global currentlyLoadedSplitIndex := 999
