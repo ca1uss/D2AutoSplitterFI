@@ -140,7 +140,7 @@ WinTitle := "LiveSplit"
     Gui, Autosplitter: Add, Hotkey, x315 y400 w120 h21 vHotKey4, %tmpVar1%
     tmpVar1 := hotKeySettingsArray[5]
     if (tmpVar1 != "")
-        Hotkey, $%tmpVar1%, StartInput
+      Hotkey, ~$%tmpVar1%, StartInput
     Gui, Autosplitter: Add, Hotkey, x315 y430 w120 h21 vHotKey5, %tmpVar1%
     tmpVar1 := hotKeySettingsArray[6]
     if (tmpVar1 != "")
@@ -338,21 +338,21 @@ Return
         if (Hotkey2 != "")
         {
             if (hotKeySettingsArray[2] != "")
-                Hotkey, % hotKeySettingsArray[2], off
+                Hotkey, %  hotKeySettingsArray[2], off
             hotKeySettingsArray[2] := HotKey2
             Hotkey, $%HotKey2%, ResetAutoSplitter
         }
         if (Hotkey3 != "")
         {
             if (hotKeySettingsArray[3] != "")
-                Hotkey, % hotKeySettingsArray[3], off
+                Hotkey, %  hotKeySettingsArray[3], off
             hotKeySettingsArray[3] := HotKey3
             Hotkey, $%HotKey3%, SkipSplit
         }
         if (Hotkey4 != "") 
         {
             if (hotKeySettingsArray[4] != "")
-                Hotkey, % hotKeySettingsArray[4], off
+                Hotkey, %  hotKeySettingsArray[4], off
             hotKeySettingsArray[4] := HotKey4
             Hotkey, $%HotKey4%, UndoSplit
         }
@@ -360,8 +360,8 @@ Return
         {
             if (hotKeySettingsArray[5] != "")
                 Hotkey, % hotKeySettingsArray[5], off
-            hotKeySettingsArray[5] := HotKey5          
-            Hotkey, $%HotKey5%, StartInput    
+            hotKeySettingsArray[5] := HotKey5
+            Hotkey, ~$%HotKey5%, StartInput
         }
         if (Hotkey6 != "") 
         {
@@ -444,14 +444,14 @@ Return
         else {
             canPress := True
             GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Ready
+            
         }
     return
     
     StartInput:
-        if (!canPress)
+        if (!canPress) {
             Return
-        Send, {%startInput%}
-        
+        }  
     StartKeyPressed:
         Send, {%splitButton%}
         canPress := False
