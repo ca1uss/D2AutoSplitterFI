@@ -281,7 +281,7 @@ WinTitle := "LiveSplit"
         Gdip_SaveBitmapToFile(pGlobalBitmap, tmpImage)
         Gui, HPbarColor: Add, Picture, x224 y8 w149 h129 vlightHPColor, %tmpImage%
         Gdip_DisposeImage(pGlobalBitmap)
-4
+
     ; Create the "selection rectangle" GUIs (one for each edge).
         Loop 4 {
             Gui, %A_Index%: -Caption +ToolWindow +AlwaysOnTop
@@ -990,7 +990,7 @@ Return
         Gdip_DisposeImage(pBitmap)
         Gui, Screenshot: -Caption
         Gui, Screenshot: Add, Picture, x0 y0, %A_ScriptDir%\Dependencies\fullScreenshot.png
-        Gui, Screenshot: show, h%A_ScreenHeight% width%A_ScreenWidth% x0 y0
+        Gui, Screenshot: show, h%A_ScreenHeight% w%A_ScreenWidth% x0 y0
         GuiControl imageMaker: +Hidden, Capture
         GuiControl imageMaker: -Hidden, Uncapture 
         Gui, imageMaker: Show
