@@ -765,8 +765,6 @@ Return
         GUIupdate()
     return
 
-    
-
     UndoOnlyAutoSplitter:
         global breakLoop := 1
         global breakLoopLF := 1
