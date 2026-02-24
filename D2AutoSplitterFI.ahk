@@ -66,6 +66,7 @@ WinTitle := "LiveSplit"
     global WhiteCorrectForGui:= 0
     global BlackCorrectForGui:= 0
     global canPress := true
+    global splitsNeeded := true
 ; ===================================================
 
 ; global declarations for split image maker
@@ -171,12 +172,15 @@ WinTitle := "LiveSplit"
     Gui, Autosplitter: Add, Button, x538 y304 w79 h56 gUndoOnlyAutoSplitter, Undo Current`nSplit Image
     Gui, Autosplitter: Add, Text, x184 y8 w313 h255 +0x200 +Center +Border vtimerText
     Gui, Autosplitter: Add, Picture, x184 y8 w313 h255 +Border vCurrentSplitImage
-    Gui, Autosplitter: Add, Text, x200 y267 w122 h19 +0x200 vcurrerntlyLookingForText, Currently Looking For:
-    Gui, Autosplitter: Add, Button, x16 y200 w153 h73 gOpenSplitImageMaker, Open Split Image Maker
-    Gui, Autosplitter: Add, Text, x16 y64 w153 h23 +0x200 +Center, Currently Loaded Splits:
-    Gui, Autosplitter: Add, Button, x16 y152 w153 h42 gOpenSplitManager, Edit/Make New Splits
-    Gui, Autosplitter: Add, Text, x16 y88 w153 h23 +0x200 +Center vNameOfLoadedSplits
+    
     Gui, Autosplitter: Add, Button, x16 y16 w153 h42 gLoadSplitsToUse, Load Splits
+    Gui, Autosplitter: Add, Text, x16 y64 w153 h23 +0x200 +Center, Currently Loaded Splits:
+    Gui, Autosplitter: Add, Text, x16 y88 w153 h23 +0x200 +Center vNameOfLoadedSplits
+    Gui, Autosplitter: Add, Button, x16 y160 w153 h35 gRunWithoutSplits vYNSplits, Run Without Splits
+    Gui, Autosplitter: Add, Button, x16 y200 w153 h35 gOpenSplitManager, Edit/Make New Splits
+    Gui, Autosplitter: Add, Button, x16 y240 w153 h35 gOpenSplitImageMaker, Open Split Image Maker
+    
+    Gui, Autosplitter: Add, Text, x200 y267 w122 h23 +0x200 vcurrerntlyLookingForText, Currently Looking For:
     Gui, Autosplitter: Add, Text, x328 y267 w166 h20 +0x200 vsplitImageNameForGui
     Gui, Autosplitter: Add, Button, x20 y450 w176 h40 gopenInfoTab, Info and how to use the Autosplitter
 
@@ -388,6 +392,26 @@ Return
         pauseButton := hotKeySettingsArray[6]
     return
 
+    NoSplitFileErrorBox(text, title := "Message") {
+        Gui, FileErrorBox: New, +AlwaysOnTop -MinimizeBox -MaximizeBox +ToolWindow, %title%
+        Gui, Font, s10
+
+        Gui, Add, Text, w260, %text%
+        Gui, Add, Button, xm w80 gCustomMsgBox_OK, Later
+        Gui, Add, Button, x+10 yp w80 Default gLoadSplitsToUse, Select a File
+
+        Gui, Show, AutoSize Center
+        return
+
+        CustomMsgBox_OK:
+        GuiClose:
+        GuiEscape:
+        Gui, Destroy
+
+
+        return
+    }
+
     OpenSplitImageMaker:
         Gui, Autosplitter: +Disabled
         Gui, imageMaker: Show, Center h550 w1244, Split Image Maker
@@ -448,6 +472,18 @@ Return
             WinSetTitle, Destiny 2 AutoSplitter - Paused, , Destiny 2 AutoSplitter
         }
     return
+
+    RunWithoutSplits:
+        if (splitsNeeded) {
+            splitsNeeded := false
+            GuiControl, AutoSplitter:, YNSplits, Run With Splits 
+        }
+        else {
+            splitsNeeded := true
+            GuiControl, AutoSplitter:, YNSplits, Run Without Splits 
+
+        }
+    Return
     
     StartInput:
         if (!canPress) {
@@ -459,9 +495,10 @@ Return
         GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Splitter Running
         WinSetTitle, Destiny 2 AutoSplitter - Running, , Destiny 2 AutoSplitter
     StartAutoSplitter:
-        if (currentlyLoadedSplits[1] == "")
+        if (currentlyLoadedSplits[1] == "" && splitsNeeded == true)
         {
-            MsgBox, Select a split file first please
+            GoSub, ResetAutoSplitter 
+            NoSplitFileErrorBox("Please select a split file", "Error")
             canPress := True
             GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Ready
             return
@@ -472,68 +509,69 @@ Return
         global nLoops := 0
         SetTimer, countLoops, 1000
         Hotkey, %splitButton%, Off
-        loop
-        {
-            GuiControl AutoSplitter:, timerText, 
-            previousSplitWasBossDeath := 0
-            currentSplit := StrSplit(currentlyLoadedSplits[currentlyLoadedSplitIndex], ",")
-            if (currentlyLoadedSplitIndex > 1)
-            {
-                previousSplit := StrSplit(currentlyLoadedSplits[currentlyLoadedSplitIndex-1], ",")
-                if (previousSplit[2] == "Boss Death")
-                    previousSplitWasBossDeath := 1
-            }
-            currentSplitImageName := currentSplit[2]
-            GuiControl AutoSplitter:, currerntlyLookingForText, Currently Looking For:
-            GuiControl Autosplitter:, currentSplitImage, %A_ScriptDir%\Dependencies\real_image.png
-            GuiControl Autosplitter:, currentSplitImage,
-            GuiControl Autosplitter:, currentSplitImage, %A_WorkingDir%\Split_Images\%currentSplitImageName%.png
-            GuiControl Autosplitter: Move, currentSplitImage, x184 y8 w313 h255
-            GuiControl Autosplitter:, splitImageNameForGui, %currentSplitImageName%
+        if (splitsNeeded == true) {
+                loop {
+                GuiControl AutoSplitter:, timerText, 
+                previousSplitWasBossDeath := 0
+                currentSplit := StrSplit(currentlyLoadedSplits[currentlyLoadedSplitIndex], ",")
+                if (currentlyLoadedSplitIndex > 1)
+                {
+                    previousSplit := StrSplit(currentlyLoadedSplits[currentlyLoadedSplitIndex-1], ",")
+                    if (previousSplit[2] == "Boss Death")
+                        previousSplitWasBossDeath := 1
+                }
+                currentSplitImageName := currentSplit[2]
+                GuiControl AutoSplitter:, currerntlyLookingForText, Currently Looking For:
+                GuiControl Autosplitter:, currentSplitImage, %A_ScriptDir%\Dependencies\real_image.png
+                GuiControl Autosplitter:, currentSplitImage,
+                GuiControl Autosplitter:, currentSplitImage, %A_WorkingDir%\Split_Images\%currentSplitImageName%.png
+                GuiControl Autosplitter: Move, currentSplitImage, x184 y8 w313 h255
+                GuiControl Autosplitter:, splitImageNameForGui, %currentSplitImageName%
 
-            imageInfoString =
-            FileRead, imageInfoString, %A_ScriptDir%\Split_Images\image_info.txt
-            imageDataArray := StrSplit(imageInfoString, "&")
-            for i, imageData in imageDataArray
-            {
-                currentSplitImageInfo := StrSplit(imageData, ",")
-                if (currentSplitImageInfo[1] == currentSplitImageName)
+                imageInfoString =
+                FileRead, imageInfoString, %A_ScriptDir%\Split_Images\image_info.txt
+                imageDataArray := StrSplit(imageInfoString, "&")
+                for i, imageData in imageDataArray
+                {
+                    currentSplitImageInfo := StrSplit(imageData, ",")
+                    if (currentSplitImageInfo[1] == currentSplitImageName)
+                    {
+                        break
+                    }
+                }
+
+                if (currentSplitImageName == "None") 
+                {
+                    MsgBox, no image selected for split %currentlyLoadedSplitIndex%
+                    GoTo, StopOnlyAutoSplitter
+                }
+                findFunc := "findNormal"
+                currentSplitPixelString := makePixelArrayString(currentSplitImageName)
+                currentSplitPixelArray := StrSplit(currentSplitPixelString, ",")
+                if (currentSplitImageName == "Boss Death")
+                {
+                    currentSplitPixelArray :=
+                    findFunc := "findBossDeath"
+                    GuiControl AutoSplitter:, CurrentSplitImage
+                }
+                if (currentSplitImageName == "Boss Healthbar")
+                {
+                    currentSplitPixelArray :=
+                    findFunc := "findBossThere"
+                    GuiControl AutoSplitter:, CurrentSplitImage
+                }
+
+                currentSplitImageInfo[3] := currentSplitPixelArray
+
+                lookingFor(findFunc, currentSplit[4], previousSplitWasBossDeath, currentSplitImageInfo)
+                if (currentlyLoadedSplitIndex > currentlyLoadedSplits.MaxIndex() || currentlyLoadedSplitIndex < 1)
                 {
                     break
                 }
-            }
-
-            if (currentSplitImageName == "None") 
-            {
-                MsgBox, no image selected for split %currentlyLoadedSplitIndex%
-                GoTo, StopOnlyAutoSplitter
-            }
-            findFunc := "findNormal"
-            currentSplitPixelString := makePixelArrayString(currentSplitImageName)
-            currentSplitPixelArray := StrSplit(currentSplitPixelString, ",")
-            if (currentSplitImageName == "Boss Death")
-            {
-                currentSplitPixelArray :=
-                findFunc := "findBossDeath"
-                GuiControl AutoSplitter:, CurrentSplitImage
-            }
-            if (currentSplitImageName == "Boss Healthbar")
-            {
-                currentSplitPixelArray :=
-                findFunc := "findBossThere"
-                GuiControl AutoSplitter:, CurrentSplitImage
-            }
-
-            currentSplitImageInfo[3] := currentSplitPixelArray
-
-            lookingFor(findFunc, currentSplit[4], previousSplitWasBossDeath, currentSplitImageInfo)
-            if (currentlyLoadedSplitIndex > currentlyLoadedSplits.MaxIndex() || currentlyLoadedSplitIndex < 1)
-            {
-                break
+                Hotkey, %splitButton%, On
+                GoSub, StopOnlyAutoSplitter 
             }
         }
-        Hotkey, %splitButton%, On
-        GoSub, StopOnlyAutoSplitter
     return
 
     doLoop:
@@ -727,6 +765,8 @@ Return
         GUIupdate()
     return
 
+    
+
     UndoOnlyAutoSplitter:
         global breakLoop := 1
         global breakLoopLF := 1
@@ -747,6 +787,7 @@ Return
         }
         Gui, Autosplitter: -Disabled
         Gui, Autosplitter: Show,
+        Gui, FileErrorBox: Destroy
     Return
 
     makePixelArrayString(imageName)
