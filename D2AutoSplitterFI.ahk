@@ -407,8 +407,6 @@ Return
         GuiClose:
         GuiEscape:
         Gui, Destroy
-
-
         return
     }
 
