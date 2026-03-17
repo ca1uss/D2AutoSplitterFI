@@ -493,8 +493,7 @@ Return
         GuiControl, Autosplitter:, PausedIndicator, First Input Detection: Splitter Running
         WinSetTitle, Destiny 2 AutoSplitter - Running, , Destiny 2 AutoSplitter
     StartAutoSplitter:
-        if (currentlyLoadedSplits[1] == "" && splitsNeeded == true)
-        {
+        if (currentlyLoadedSplits[1] == "" && splitsNeeded == true) {
             GoSub, ResetAutoSplitter 
             NoSplitFileErrorBox("Please select a split file", "Error")
             canPress := True
@@ -508,7 +507,7 @@ Return
         SetTimer, countLoops, 1000
         Hotkey, %splitButton%, Off
         if (splitsNeeded == true) {
-                loop {
+            loop {
                 GuiControl AutoSplitter:, timerText, 
                 previousSplitWasBossDeath := 0
                 currentSplit := StrSplit(currentlyLoadedSplits[currentlyLoadedSplitIndex], ",")
@@ -566,10 +565,11 @@ Return
                 {
                     break
                 }
-                Hotkey, %splitButton%, On
-                GoSub, StopOnlyAutoSplitter 
             }
+        Hotkey, %splitButton%, On
+        GoSub, StopOnlyAutoSplitter 
         }
+        
     return
 
     doLoop:
